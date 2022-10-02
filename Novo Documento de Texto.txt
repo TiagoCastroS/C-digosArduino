@@ -1,0 +1,932 @@
+#include <LiquidCrystal.h>
+LiquidCrystal lcd(8, 9, 4, 5, 6, 7);
+
+int ama = 3;
+int sab = 2;
+int bomb_fre = 11;
+int hor = 12;
+int ant = 13;
+int pres = A3;
+int tam = A2;
+int maxi;
+int indice;
+boolean est = false;
+int ok = 0;
+int botao;
+int limpeza = A1;
+int est_limpeza;
+
+
+String modo = "";
+
+boolean confirma_Encher = false;
+boolean confirma_bater = false;
+boolean confirma_molholon = false;
+boolean confirma_esvaziar = false;
+boolean confirma_encherdois = false;
+boolean confirma_encherdois2 = false;
+boolean confirma_encherum = false;
+boolean confirma_enxague = false;
+boolean confirma_centrifugar = false;
+boolean confirma_turbo = false;
+boolean confirma_extra = false;
+boolean confirma_super = false;
+boolean confirma_esperar = false;
+boolean fim_da_lavagem = false;
+boolean fim = false;
+boolean fim_super = false;
+boolean fim_enxague = false;
+boolean fim_enxague2 = false;
+boolean fim_encherdois = false;
+boolean fim_encherum = false;
+boolean fim_esvaziar = false;
+boolean fim_centrifuga = false;
+boolean fim_centrifuga2 = false;
+boolean fim_bater = false;
+boolean fim_sla = false;
+boolean lavagem;
+boolean OK_Select = false;
+
+void setup() {
+  pinMode(ama, OUTPUT);
+  pinMode(sab, OUTPUT);
+  pinMode(bomb_fre, OUTPUT);
+  pinMode(hor, OUTPUT);
+  pinMode(ant, OUTPUT);
+  pinMode(pres, INPUT);
+  pinMode(tam, INPUT);
+
+  int est_tam = digitalRead(tam);
+  if (est_tam == LOW) {
+    digitalWrite (ama, HIGH);
+    digitalWrite (sab, HIGH);
+    digitalWrite (bomb_fre, HIGH);
+    digitalWrite (hor, HIGH);
+    digitalWrite (ant, HIGH);
+  }
+
+  lcd.begin(16, 2);
+  Serial.begin(9600);
+  digitalWrite (ama, HIGH);
+  digitalWrite (sab, HIGH);
+  digitalWrite (bomb_fre, HIGH);
+  digitalWrite (hor, HIGH);
+  digitalWrite (ant, HIGH);
+  lcd.setCursor(0, 0);
+  lcd.print("BEM VINDO A SUA");
+  lcd.setCursor(0, 1);
+  lcd.print("MAQUINA DE LAVAR");
+  delay(3000);
+  lcd.clear();
+  lcd.setCursor(2, 0);
+  lcd.print("ESCOLHA SEU");
+  lcd.setCursor(0, 1);
+  lcd.print("MODO DE LAVAGEM");
+  delay(3000);
+  lcd.clear();
+}
+
+void (*reset) () = 0;
+
+boolean bater() {
+  indice = 2;
+  for (maxi = 0; maxi < indice; maxi++) {
+
+    digitalWrite(hor, LOW);
+    delay(1000);
+    digitalWrite(hor, HIGH);
+    delay(2000);
+    digitalWrite(ant, LOW);
+    delay(1000);
+    digitalWrite(ant, HIGH);
+    delay(1000);
+  }
+
+
+  return true;
+}
+
+boolean encherum() {
+
+  if (est == true) {
+    digitalWrite(sab, HIGH);
+    fim_encherum = true;
+    return true;
+  }
+  else {
+    digitalWrite(sab, LOW);
+    return false;
+  }
+}
+
+boolean encherdois() {
+  if (est == true) {
+    digitalWrite(ama, HIGH);
+    fim_encherdois = true;
+    return true;
+  }
+  else {
+    digitalWrite(ama, LOW);
+    return false;
+  }
+}
+boolean encherdois2() {
+  if (est == true) {
+    digitalWrite(ama, HIGH);
+    fim_encherdois = true;
+    return true;
+  }
+  else {
+    digitalWrite(ama, LOW);
+    return false;
+  }
+}
+boolean esperar(long tempo) {
+  delay(tempo);
+  return true;
+}
+boolean esvaziar() {
+  delay(2000);
+  digitalWrite(bomb_fre, LOW);
+  delay(30000); // tempo que se imagina que a máquina vá estar vazia
+  digitalWrite(bomb_fre, HIGH);
+
+  return true;
+}
+
+boolean enxague() {
+  esperar(1500);
+  indice = 2;
+  for (maxi = 0; maxi < indice; maxi++) {
+
+    digitalWrite(hor, LOW);
+    delay(1000);
+    digitalWrite(hor, HIGH);
+    delay(2000);
+    digitalWrite(ant, LOW);
+    delay(1000);
+    digitalWrite(ant, HIGH);
+    delay(1000);
+  }
+  delay(2000);
+  digitalWrite(bomb_fre, LOW);
+  delay(30000); // tempo que se imagina que a máquina vá estar vazia
+  digitalWrite(bomb_fre, HIGH);
+
+  return true;
+}
+
+boolean centrifugar() {
+  digitalWrite (bomb_fre, LOW);
+  delay(4000);
+  digitalWrite (hor, LOW);
+  esperar(15000); // tempo imaginário para centrifugar
+  digitalWrite (bomb_fre, HIGH);
+  digitalWrite (hor, HIGH);
+
+  return true;
+}
+
+void molho() {
+  esperar(2000);
+}
+
+void molholon() {
+  esperar(4000);
+}
+
+void molhocur() {
+  esperar(1000);
+}
+
+boolean turbo() {
+  indice = 2;
+  for (maxi = 0; maxi < indice; maxi++) {
+
+    digitalWrite(hor, LOW);
+    delay(1000);
+    digitalWrite(hor, HIGH);
+    delay(1000);
+    digitalWrite(ant, LOW);
+    delay(1000);
+    digitalWrite(ant, HIGH);
+    delay(1000);
+  }
+
+  return true;
+}
+boolean extra() {
+  enxague();
+  delay(2000);
+  enxague();
+  delay(1000);
+  return true;
+}
+
+boolean super_ama() {
+  esperar(1500);
+  indice = 2;
+  for (maxi = 0; maxi < indice; maxi++) {
+
+    digitalWrite(hor, LOW);
+    delay(1000);
+    digitalWrite(hor, HIGH);
+    delay(2000);
+    digitalWrite(ant, LOW);
+    delay(1000);
+    digitalWrite(ant, HIGH);
+    delay(1000);
+  }
+  return true;
+}
+
+boolean autolimpeza () {
+  if (fim_bater == false) {
+    confirma_Encher = encherum();
+  }
+
+  if (confirma_Encher == true && fim_bater == false) {
+    confirma_bater = bater();
+    fim_bater = true;
+  }
+  if (confirma_bater == true && fim_bater == true && confirma_esvaziar == false) {
+    confirma_esvaziar = esvaziar();
+  }
+}
+
+boolean mt_suja() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false && fim_encherum == true ) {
+    confirma_turbo = turbo();
+    molholon();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false) {
+    confirma_encherdois = encherdois();
+    est = false;
+    fim = true;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true && fim_centrifuga == false && fim_sla == false ) {
+    delay(1500);
+    confirma_enxague = enxague();
+
+
+    if (confirma_enxague == true && fim_sla == false) {
+      Serial.println("enchendo pela segunda vez");
+      delay(300);
+      confirma_encherdois = encherdois();
+      est = false;
+      fim_sla = true;
+    }
+    if (confirma_encherdois == true && est == false  && fim_sla == true && fim_da_lavagem == true);
+    Serial.println("segundo enxague");
+    delay(300);
+    confirma_enxague = enxague();
+    fim_enxague = true;
+  }
+
+
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+    fim_centrifuga = true;
+  }
+}
+
+boolean jeans() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_turbo = turbo();
+    molholon();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false ) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true) {
+
+    delay(1500);
+    confirma_enxague = enxague();
+    fim_enxague = true;
+  }
+
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean cama_banho() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_bater = bater();
+    molholon();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false ) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true) {
+
+    delay(1500);
+    confirma_enxague = enxague();
+    fim_enxague = true;
+  }
+
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean branca() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_turbo = turbo();
+    molholon();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false ) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true && confirma_encherdois2 == false ) {
+    delay(1500);
+    confirma_super = super_ama();
+    delay(1000);
+    confirma_enxague = enxague();
+    fim_super = true;
+  }
+
+  if (confirma_enxague == true && fim_super == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean suja() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_bater = bater();
+    molhocur();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true  ) {
+    delay(1500);
+    confirma_enxague = enxague();
+    fim_enxague = true;
+
+  }
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean camiseta_cobertor() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_bater = bater();
+    molhocur();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false ) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true && confirma_encherdois2 == false ) {
+    delay(1500);
+    confirma_enxague = enxague();
+    fim_enxague = true;
+
+  }
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean uniforme() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_turbo = turbo();
+    molhocur();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+
+  if (confirma_encherdois == true &&  fim_enxague == false && fim == true && confirma_encherdois2 == true) {
+    delay(1500);
+    confirma_enxague = enxague();
+    fim_enxague = true;
+  }
+
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean colorida() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_bater = bater();
+    molhocur();
+    Serial.println("esvaziando");
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true ) {
+    Serial.println("enchendo dois");
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true ) {
+    delay(1500);
+    Serial.println("super");
+    confirma_super = super_ama();
+    delay(1000);
+
+    if (confirma_super == true) {
+      Serial.println("enxague");
+      confirma_enxague = enxague();
+      fim_super = true;
+    }
+  }
+
+  if (confirma_enxague == true && fim_super == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean pouco_suja() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_bater = bater();
+    molho();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false ) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true && confirma_encherdois2 == false ) {
+    delay(1500);
+    confirma_enxague = enxague();
+    fim_enxague = true;
+
+  }
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean intima() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_bater = bater();
+    molho();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false ) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true && confirma_encherdois2 == false ) {
+
+    delay(1500);
+    confirma_enxague = enxague();
+    esperar(2000);
+    confirma_enxague = enxague();
+    fim_enxague = true;
+  }
+
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+
+boolean escura() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_bater = bater();
+    molholon();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true) {
+    confirma_enxague = enxague();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true) {
+    delay(1500);
+    confirma_encherdois = encherdois();
+
+    fim_enxague = true;
+  }
+  if (confirma_enxague == true && fim_enxague == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean passeio() {
+  if (fim_da_lavagem == false) {
+    confirma_Encher = encherum();
+    est = false;
+  }
+
+  if (confirma_Encher == true && fim_da_lavagem == false ) {
+    confirma_bater = bater();
+    molho();
+    confirma_esvaziar = esvaziar();
+    fim_da_lavagem = true;
+  }
+
+  if (confirma_esvaziar == true && fim_da_lavagem == true && confirma_enxague == false ) {
+    confirma_encherdois = encherdois();
+    fim = true;
+    est = false;
+  }
+
+  if (confirma_encherdois == true &&  fim_da_lavagem == true && fim == true && confirma_encherdois2 == false ) {
+    delay(1500);
+    confirma_super = super_ama();
+    delay(1000);
+    confirma_enxague = enxague();
+    fim_super = true;
+  }
+
+  if (confirma_enxague == true && fim_super == true) {
+    confirma_centrifugar = centrifugar ();
+  }
+}
+
+boolean enxaguar() {
+  enxague();
+  delay (300);
+}
+
+boolean centrifugacao() {
+  centrifugar();
+  delay (300);
+}
+
+void loop() {
+
+  est = digitalRead(pres);
+  est_limpeza = digitalRead(limpeza);
+  botao = analogRead (A0);
+  int est_tam = digitalRead(tam);
+
+  digitalWrite (ama, HIGH);
+  digitalWrite (sab, HIGH);
+  digitalWrite (bomb_fre, HIGH);
+  digitalWrite (hor, HIGH);
+  digitalWrite (ant, HIGH);
+
+
+  if (botao < 100) {
+
+    ok ++;
+    if (ok > 15) {
+      ok = 1;
+    }
+
+    if (ok == 1) {
+      modo = "MUITO SUJA";
+    }
+    if (ok == 2) {
+      modo = "JEANS";
+    }
+    if (ok == 3) {
+      modo = "CAMA E BANHO";
+    }
+    if (ok == 4) {
+      modo = "BRANCAS";
+    }
+    if (ok == 5) {
+      modo = "SUJAS";
+    }
+    if (ok == 6) {
+      modo = "CAMISA COBERTOR";
+    }
+    if (ok == 7) {
+      modo = "UNIFORME";
+    }
+    if (ok == 8) {
+      modo = "COLORIDAS";
+    }
+    if (ok == 9) {
+      modo = "POUCO SUJAS";
+    }
+    if (ok == 10) {
+      modo = "INTIMAS";
+    }
+    if (ok == 11) {
+      modo = "ESCURAS";
+    }
+    if (ok == 12) {
+      modo = "PASSEIO";
+    }
+    if (ok == 13) {
+      modo = "ENXAGUAR";
+    }
+    if (ok == 14) {
+      modo = "CENTRIFUGAR";
+    }
+    if (ok == 15) {
+      modo = "AUTO LIMPEZA";
+    }
+
+
+    lcd.clear();
+    lcd.setCursor (0, 0);
+    lcd.print("MODO: ");
+    lcd.setCursor (0, 1);
+    lcd.print(modo);
+    delay(300);
+  }
+
+  if (botao >= 500 && botao < 750 && est_tam == HIGH ) {
+    OK_Select = true;
+  }
+  if (ok == 1 && OK_Select == true) {
+    mt_suja();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 2 && OK_Select == true) {
+    jeans();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 3 && OK_Select == true) {
+    cama_banho();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 4 && OK_Select == true) {
+    branca();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 5 && OK_Select == true) {
+    suja();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 6 && OK_Select == true) {
+    camiseta_cobertor();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 7 && OK_Select == true) {
+    uniforme();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 8 && OK_Select == true) {
+    colorida();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 9 && OK_Select == true) {
+    pouco_suja();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 10 && OK_Select == true) {
+    intima();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 11 && OK_Select == true) {
+    escura();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 12 && OK_Select == true) {
+    passeio();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(4, 0);
+      lcd.print("LAVAGEM");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 13 && OK_Select == true) {
+    confirma_encherdois = encherdois();
+    if (confirma_encherdois == true) {
+      confirma_enxague = enxague();
+      if (confirma_enxague == true) {
+        lcd.clear();
+        lcd.setCursor(4, 0);
+        lcd.print("ENXAGUE");
+        lcd.setCursor(4, 1);
+        lcd.print("COMPLETO");
+        esperar(8000);
+        reset();
+      }
+    }
+  }
+  if (ok == 14 && OK_Select == true) {
+    confirma_centrifugar = centrifugar();
+    if (confirma_centrifugar == true) {
+      lcd.clear();
+      lcd.setCursor(2, 0);
+      lcd.print("CENTRIFUGACAO");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETA");
+      esperar(8000);
+      reset();
+    }
+  }
+  if (ok == 15 && OK_Select == true) {
+    autolimpeza();
+    lcd.setCursor(0, 0);
+    lcd.print("MODO ESPECIAL: ");
+    lcd.setCursor(0, 1);
+    lcd.print("AUTO LIMPEZA");
+    autolimpeza();
+    if (confirma_esvaziar == true) {
+      lcd.clear();
+      lcd.setCursor(1, 0);
+      lcd.print("MODO ESPECIAL ");
+      lcd.setCursor(4, 1);
+      lcd.print("COMPLETO");
+      esperar(8000);
+      reset();
+    }
+  }
+}
+
